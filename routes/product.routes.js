@@ -11,14 +11,15 @@ router.post('/add', authMiddleware, async function (req, res) {
     try {   
         const user = await User.findOne({_id: req.user.id})
         if (!user.admin) return
-        const {name, composition, price} = req.body
+        const {name, composition, price, compositionAdd} = req.body
         const file = req.files.file
         const type = '.' + file.name.split('.').pop()
         const productrName = Uuid.v4() + type
         file.mv(req.staticPath + '\\' + productrName)
         const product = new Product({imgPath: productrName})
         product.name = name
-        product.composition = composition
+        product.composition = JSON.parse(composition)
+        product.compositionAdd = JSON.parse(compositionAdd)
         product.price = price
         await product.save()
         return res.json(product)
@@ -33,7 +34,7 @@ router.post('/edit', authMiddleware, async function (req, res) {
         const user = await User.findOne({_id: req.user.id})
         if (!user.admin) return
         const currentProduct = await Product.findById(req.body.id) || null
-        const {name, composition, price} = req.body
+        const {name, composition, price, compositionAdd} = req.body
         if (!!req.files) {
             const file = req.files.file
             const type = '.' + file.name.split('.').pop()
@@ -43,7 +44,8 @@ router.post('/edit', authMiddleware, async function (req, res) {
             currentProduct.imgPath = productrName
         }
             currentProduct.name = name
-            currentProduct.composition = composition
+            currentProduct.composition = JSON.parse(composition)
+            currentProduct.compositionAdd = JSON.parse(compositionAdd)
             currentProduct.price = price
         await currentProduct.save()
         return res.json(currentProduct)
