@@ -7,6 +7,7 @@ const fs = require('fs')
 const authMiddleware = require('../middleware/auth.middleware')
 
 
+
 router.post('/add', authMiddleware, async function (req, res) {
     try {   
         const user = await User.findOne({_id: req.user.id})

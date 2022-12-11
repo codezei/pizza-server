@@ -24,9 +24,9 @@ router.post('/registration', [
             return res.status(400).json({message: `User with email ${email} is already exist`})
         }
         let hashPassword = await bcrypt.hash(password, 10)
-        const user = new User({email: email, password: hashPassword})
+        const user = new User({email: email, password: hashPassword, admin: false})
         await user.save()
-        return user.json({message: 'User was created'})
+        return res.json({message: 'User was created'})
     } catch (e) {
         res.status(400).json({message: 'Server error'})
     }
@@ -53,12 +53,42 @@ router.post('/login', async function (req, res) {
             user: {
                 id: user.id,
                 email: user.email,
-                admin: user.admin
+                admin: user.admin,
+                name: user.name || "",
+                phone: user.phone || "",
+                date: user.date || ""
             }
         })
 
     } catch (e) {
         res.status(400).json({message: 'Server error'})
+    }
+})
+
+router.post('/edit', authMiddleware , async function (req, res) {
+    try {
+        const user = await User.findOne({_id: req.user.id})
+        const token = jwt.sign({id: user.id}, config.get('secretKey'), {expiresIn: '1h'})
+        const userData = req.body
+        user.name = userData.name || ''
+        user.phone = userData.phone || ''
+        user.email = userData.email || ''
+        user.date = userData.date || ''
+        console.log(user)
+        await user.save()
+        return res.json({
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                admin: user.admin,
+                name: user.name,
+                phone: user.phone,
+                date: user.date
+            }
+        })
+    } catch (e) {
+        res.status(400).json({message: 'Server edit error'})
     }
 })
 
@@ -71,7 +101,10 @@ router.get('/auth', authMiddleware, async function(req, res) {
             user: {
                 id: user.id,
                 email: user.email,
-                admin: user.admin
+                admin: user.admin,
+                name: user.name || "",
+                phone: user.phone || "",
+                date: user.date || ""
             }
         })
 
