@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 const corsMiddleware = require('./middleware/cors.middleware')
 const authRouter = require('./routes/auth.routes')
 const productRouter = require('./routes/product.routes')
+const orderRouter = require('./routes/order.routes')
 const fileUpload = require('express-fileupload')
 const filePathMiddleware = require('./middleware/filePath.middleware')
 const staticPathMiddleware = require('./middleware/staticPath.middleware')
@@ -20,6 +21,7 @@ app.use(staticPathMiddleware(path.resolve(__dirname, 'static')))
 
 app.use('/api/auth', authRouter)
 app.use('/api/product', productRouter)
+app.use('/api/order', orderRouter)
 
 
 function start () {
