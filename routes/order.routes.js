@@ -22,15 +22,16 @@ router.post('/add', orderMiddleware, async function (req, res) {
             let firstOrder = new OrderNumber()
             await firstOrder.save()
         }
-        const {foods, user} = req.body
+        const {foods, user, total} = req.body
         let date = new Date()
         const order = new Order ({
             foods: JSON.parse(foods),
-            user: {...JSON.parse(user), id: currentUser ? currentUser._id : null},
-            number: Number(`${date.getDate()}${date.getMonth()}${date.getFullYear()}${orderCount.order}`)
+            user: {...JSON.parse(user)},
+            userId: currentUser ? currentUser._id : null
         })
         order.data.date = Date.now()
         order.data.number = Number(`${date.getDate()}${date.getMonth()}${date.getFullYear()}${orderCount.order}`)
+        order.data.total = JSON.parse(total)
         await orderCount.save()
         await order.save()
         console.log(order)
@@ -44,7 +45,9 @@ router.post('/add', orderMiddleware, async function (req, res) {
 
 router.post('/get', authMiddleware, async function (req, res) {
     try {   
-
+        const orders = await Order.find({userId: req.user.id})
+        console.log(orders)
+        return res.json(orders)
     } catch (e) {
         return res.status(400).json({message: 'Orders not get'})
     }   
@@ -54,7 +57,7 @@ router.get('/get', async function (req, res) {
         const order = await Order.findById(req.query.id)
         return res.json(order)
     } catch (e) {
-        return res.status(400).json({message: 'Product no found'})
+        return res.status(400).json({message: 'Order not get'})
     }   
 })
 

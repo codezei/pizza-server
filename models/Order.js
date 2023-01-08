@@ -8,13 +8,14 @@ const Order = new Schema({
         email: {type: String},
         adress: {type: String},
         comment: {type: String},
-        id: {type: ObjectId, ref: "User"}
     },
     data: {
         date: {type: Date, default: Date.now()},
         number: {type: Number},
-        status: {type: String, default: 'processing'}
-    }
+        status: {type: String, default: 'processing'},
+        total: {type: Number}
+    },
+    userId: {type: ObjectId, ref: "User"}
 
 })
 
