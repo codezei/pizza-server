@@ -9,7 +9,6 @@ module.exports = (req, res, next)=>{
 
     try {
         const token = req.headers.authorization.split(' ')[1]
-        console.log(token)
         if (!token || token === 'null') {
             req.user = {id: null}
             next()
@@ -17,7 +16,6 @@ module.exports = (req, res, next)=>{
         }
         const decoded = jwt.verify(token, config.get('secretKey'))
         req.user = decoded
-        console.log(req.user)
         next()
     } catch (e) {
         return res.status(401).json({message: "Order error"})

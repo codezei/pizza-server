@@ -34,7 +34,6 @@ router.post('/add', orderMiddleware, async function (req, res) {
         order.data.total = JSON.parse(total)
         await orderCount.save()
         await order.save()
-        console.log(order)
         return res.json(order)
 
 
@@ -46,8 +45,20 @@ router.post('/add', orderMiddleware, async function (req, res) {
 router.post('/get', authMiddleware, async function (req, res) {
     try {   
         const orders = await Order.find({userId: req.user.id})
-        console.log(orders)
         return res.json(orders)
+    } catch (e) {
+        return res.status(400).json({message: 'Orders not get'})
+    }   
+})
+router.post('/getAll', authMiddleware, async function (req, res) {
+    try {   
+        const user = await User.findOne({_id: req.user.id})
+        console.log(user)
+        if (user.admin) {
+            const orders = await Order.find({})
+            return res.json(orders)
+        }
+
     } catch (e) {
         return res.status(400).json({message: 'Orders not get'})
     }   

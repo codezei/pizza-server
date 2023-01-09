@@ -74,7 +74,6 @@ router.post('/edit', authMiddleware , async function (req, res) {
         user.phone = userData.phone || ''
         user.email = userData.email || ''
         user.date = userData.date || ''
-        console.log(user)
         await user.save()
         return res.json({
             token,
