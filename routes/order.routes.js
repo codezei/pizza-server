@@ -53,7 +53,6 @@ router.post('/get', authMiddleware, async function (req, res) {
 router.post('/getAll', authMiddleware, async function (req, res) {
     try {   
         const user = await User.findOne({_id: req.user.id})
-        console.log(user)
         if (user.admin) {
             const orders = await Order.find({})
             return res.json(orders)
@@ -61,6 +60,22 @@ router.post('/getAll', authMiddleware, async function (req, res) {
 
     } catch (e) {
         return res.status(400).json({message: 'Orders not get'})
+    }   
+})
+router.post('/change', authMiddleware, async function (req, res) {
+    try {   
+        const user = await User.findOne({_id: req.user.id})
+        if (user.admin) {
+            const id = JSON.parse(req.body.id)
+            const status = JSON.parse(req.body.status)
+            const order = await Order.findOne({_id: id})
+            order.data.status = status
+            await order.save()
+            return res.json(order)
+        }
+
+    } catch (e) {
+        return res.status(400).json({message: 'Order status no change'})
     }   
 })
 router.get('/get', async function (req, res) {
