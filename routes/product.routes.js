@@ -79,8 +79,6 @@ router.delete('/delete', authMiddleware, async function (req, res) {
         fs.unlinkSync(req.staticPath + '/' + product.imgPath)
         await product.remove()
 
-
-
         return res.json({message: "Product was deleted"})
     } catch (e) {
         return res.json({message: "Delete product have error"})
