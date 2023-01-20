@@ -11,8 +11,8 @@ const authMiddleware = require('../middleware/auth.middleware')
 router.post('/add', orderMiddleware, async function (req, res) {
     try {   
         let currentUser
-        if (req.body.user.id) {
-            currentUser = await User.findOne({_id: req.body.user.id})
+        if (req.user.id) {
+            currentUser = await User.findOne({_id: req.user.id})
         }
         let orderCount = await OrderNumber.findOne()
         if (orderCount) {
@@ -44,7 +44,7 @@ router.post('/add', orderMiddleware, async function (req, res) {
 
 router.post('/get', authMiddleware, async function (req, res) {
     try {   
-        const orders = await Order.find({userId: req.body.user.id})
+        const orders = await Order.find({userId: req.user.id})
         return res.json(orders)
     } catch (e) {
         return res.status(400).json({message: 'Orders not get'})
@@ -52,7 +52,7 @@ router.post('/get', authMiddleware, async function (req, res) {
 })
 router.post('/getAll', authMiddleware, async function (req, res) {
     try {   
-        const user = await User.findOne({_id: req.body.user.id})
+        const user = await User.findOne({_id: req.user.id})
         if (user.admin) {
             const orders = await Order.find({})
             return res.json(orders)
@@ -64,7 +64,7 @@ router.post('/getAll', authMiddleware, async function (req, res) {
 })
 router.post('/change', authMiddleware, async function (req, res) {
     try {   
-        const user = await User.findOne({_id: req.body.user.id})
+        const user = await User.findOne({_id: req.user.id})
         if (user.admin) {
             const id = JSON.parse(req.body.id)
             const status = JSON.parse(req.body.status)
