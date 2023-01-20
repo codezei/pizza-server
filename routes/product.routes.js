@@ -10,13 +10,13 @@ const authMiddleware = require('../middleware/auth.middleware')
 
 router.post('/add', authMiddleware, async function (req, res) {
     try {   
-        const user = await User.findOne({_id: req.user.id})
+        const user = await User.findOne({_id: req.body.user.id})
         if (!user.admin) return
         const {name, composition, price, compositionAdd} = req.body
         const file = req.files.file
         const type = '.' + file.name.split('.').pop()
         const productrName = Uuid.v4() + type
-        file.mv(req.staticPath + '\\' + productrName)
+        file.mv(req.body.staticPath + '\\' + productrName)
         const product = new Product({imgPath: productrName})
         product.name = name
         product.composition = JSON.parse(composition)
@@ -32,7 +32,7 @@ router.post('/add', authMiddleware, async function (req, res) {
 
 router.post('/edit', authMiddleware, async function (req, res) {
     try {   
-        const user = await User.findOne({_id: req.user.id})
+        const user = await User.findOne({_id: req.body.user.id})
         if (!user.admin) return
         const currentProduct = await Product.findById(req.body.id) || null
         const {name, composition, price, compositionAdd} = req.body
@@ -40,8 +40,8 @@ router.post('/edit', authMiddleware, async function (req, res) {
             const file = req.files.file
             const type = '.' + file.name.split('.').pop()
             const productrName = Uuid.v4() + type
-            fs.unlinkSync(req.staticPath + '\\' + currentProduct.imgPath)
-            file.mv(req.staticPath + '\\' + productrName)
+            fs.unlinkSync(req.body.staticPath + '\\' + currentProduct.imgPath)
+            file.mv(req.body.staticPath + '\\' + productrName)
             currentProduct.imgPath = productrName
         }
             currentProduct.name = name
@@ -68,7 +68,7 @@ router.get('/get', async function (req, res) {
 
 router.delete('/delete', authMiddleware, async function (req, res) {
     try {
-        const user = await User.findOne({_id: req.user.id})
+        const user = await User.findOne({_id: req.body.user.id})
         if (!user.admin) {
             return res.status(400).json({message: "You do not have access"})
         }
@@ -76,7 +76,7 @@ router.delete('/delete', authMiddleware, async function (req, res) {
         if (!product) {
             return res.status(400).json({message: "Product not found"})
         }
-        fs.unlinkSync(req.staticPath + '\\' + product.imgPath)
+        fs.unlinkSync(req.body.staticPath + '\\' + product.imgPath)
         await product.remove()
 
 

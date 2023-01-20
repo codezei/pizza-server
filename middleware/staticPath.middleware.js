@@ -1,6 +1,6 @@
 function staticPath(path) {
     return function (req, res, next) {
-        req.staticPath = path;
+        req.body.staticPath = path;
         next();
     }
 }

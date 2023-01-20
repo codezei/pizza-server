@@ -1,7 +1,7 @@
 function filePath(path) {
     return function (req, res, next) {
 
-        req.filePath = path;
+        req.body.filePath = path;
         next();
     }
 }

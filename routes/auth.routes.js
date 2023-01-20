@@ -67,7 +67,7 @@ router.post('/login', async function (req, res) {
 
 router.post('/edit', authMiddleware , async function (req, res) {
     try {
-        const user = await User.findOne({_id: req.user.id})
+        const user = await User.findOne({_id: req.body.user.id})
         const token = jwt.sign({id: user.id}, process.env.SECRET_KEY || config.get('secretKey'), {expiresIn: '1h'})
         const userData = req.body
         user.name = userData.name || ''
@@ -93,7 +93,7 @@ router.post('/edit', authMiddleware , async function (req, res) {
 
 router.get('/auth', authMiddleware, async function(req, res) {
     try {
-        const user = await User.findOne({_id: req.user.id})
+        const user = await User.findOne({_id: req.body.user.id})
         const token = jwt.sign({id: user.id}, process.env.SECRET_KEY || config.get('secretKey'), {expiresIn: '1h'})
         return res.json({
             token,
@@ -108,7 +108,7 @@ router.get('/auth', authMiddleware, async function(req, res) {
         })
 
     } catch (e) {
-        res.send({message: 'Server error'})
+        res.status(400).json({message: 'Auth error'})
     }
 })
 
