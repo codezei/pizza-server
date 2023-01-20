@@ -45,7 +45,7 @@ router.post('/login', async function (req, res) {
         if (!isValidPassword) {
             res.status(400).json({message: "Password invalid"})
         }
-        const token = jwt.sign({id: user.id}, config.get('secretKey'), {expiresIn: '1h'})
+        const token = jwt.sign({id: user.id}, process.env.SECRET_KEY || config.get('secretKey'), {expiresIn: '1h'})
 
 
         return res.json({
@@ -68,7 +68,7 @@ router.post('/login', async function (req, res) {
 router.post('/edit', authMiddleware , async function (req, res) {
     try {
         const user = await User.findOne({_id: req.user.id})
-        const token = jwt.sign({id: user.id}, config.get('secretKey'), {expiresIn: '1h'})
+        const token = jwt.sign({id: user.id}, process.env.SECRET_KEY || config.get('secretKey'), {expiresIn: '1h'})
         const userData = req.body
         user.name = userData.name || ''
         user.phone = userData.phone || ''
@@ -94,7 +94,7 @@ router.post('/edit', authMiddleware , async function (req, res) {
 router.get('/auth', authMiddleware, async function(req, res) {
     try {
         const user = await User.findOne({_id: req.user.id})
-        const token = jwt.sign({id: user.id}, config.get('secretKey'), {expiresIn: '1h'})
+        const token = jwt.sign({id: user.id}, process.env.SECRET_KEY || config.get('secretKey'), {expiresIn: '1h'})
         return res.json({
             token,
             user: {
