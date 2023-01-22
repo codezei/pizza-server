@@ -11,8 +11,8 @@ const fileUpload = require('express-fileupload')
 // const filePathMiddleware = require('./middleware/filePath.middleware')
 // const staticPathMiddleware = require('./middleware/staticPath.middleware')
 const app = express()
-const path = require('path')
-const PORT = process.env.PORT || 5000
+// const path = require('path')
+// const PORT = process.env.PORT || 5000
 const serverless = require('serverless-http')
 app.use(fileUpload({}))
 app.use(corsMiddleware)

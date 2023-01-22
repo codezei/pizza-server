@@ -2,10 +2,34 @@ const Router = require('express')
 const router = new Router()
 const Product = require('../models/Product')
 const User = require('../models/User')
-const Uuid = require('uuid')
-const fs = require('fs')
+const cloudinary = require('cloudinary')
 const authMiddleware = require('../middleware/auth.middleware')
+let streamifier = require('streamifier');
 
+
+let uploadFromBuffer = (file) => {
+
+    return new Promise((resolve, reject) => {
+ 
+      let cld_upload_stream = cloudinary.v2.uploader.upload_stream(
+       {
+         folder: "products"
+       },
+       (error, result) => {
+ 
+         if (result) {
+           resolve(result);
+         } else {
+           reject(error);
+          }
+        }
+      );
+ 
+      streamifier.createReadStream(file).pipe(cld_upload_stream);
+    });
+ 
+ };
+ 
 
 
 router.post('/add', authMiddleware, async function (req, res) {
@@ -14,10 +38,10 @@ router.post('/add', authMiddleware, async function (req, res) {
         if (!user.admin) return
         const {name, composition, price, compositionAdd} = req.body
         const file = req.files.file
-        const type = '.' + file.name.split('.').pop()
-        const productrName = Uuid.v4() + type
-        // file.mv(req.staticPath + '/' + productrName)
-        const product = new Product({imgPath: productrName})
+        const product = new Product({})
+        let resultAdd = await uploadFromBuffer(file.data);
+        product.imgPath = resultAdd.url
+        product.cloudId = resultAdd.public_id
         product.name = name
         product.composition = JSON.parse(composition)
         product.compositionAdd = JSON.parse(compositionAdd)
@@ -38,16 +62,20 @@ router.post('/edit', authMiddleware, async function (req, res) {
         const {name, composition, price, compositionAdd} = req.body
         if (!!req.files) {
             const file = req.files.file
-            const type = '.' + file.name.split('.').pop()
-            const productrName = Uuid.v4() + type
-            // fs.unlinkSync(req.staticPath + '/' + currentProduct.imgPath)
-            // file.mv(req.staticPath + '/' + productrName)
-            currentProduct.imgPath = productrName
+            let resultDelete = await cloudinary.v2.uploader.destroy(currentProduct.cloudId).then(result=>{
+                return result
+            });
+            if (resultDelete.result === 'ok') {
+                let resultEdit = await uploadFromBuffer(file.data);
+                currentProduct.imgPath = resultEdit.url
+                currentProduct.cloudId = resultEdit.public_id
+            }
+
         }
-            currentProduct.name = name
-            currentProduct.composition = JSON.parse(composition)
-            currentProduct.compositionAdd = JSON.parse(compositionAdd)
-            currentProduct.price = price
+        currentProduct.name = name
+        currentProduct.composition = JSON.parse(composition)
+        currentProduct.compositionAdd = JSON.parse(compositionAdd)
+        currentProduct.price = price
         await currentProduct.save()
         return res.json(currentProduct)
     } catch (e) {
@@ -76,9 +104,12 @@ router.delete('/delete', authMiddleware, async function (req, res) {
         if (!product) {
             return res.status(400).json({message: "Product not found"})
         }
-        // fs.unlinkSync(req.staticPath + '/' + product.imgPath)
-        await product.remove()
-
+        let resultDelete = await cloudinary.v2.uploader.destroy(product.cloudId).then(result=>{
+            return result
+        })
+        if (resultDelete.result === 'ok') {
+            await product.remove()
+        }
         return res.json({message: "Product was deleted"})
     } catch (e) {
         return res.json({message: "Delete product have error"})
