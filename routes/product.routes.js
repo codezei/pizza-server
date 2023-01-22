@@ -16,7 +16,7 @@ router.post('/add', authMiddleware, async function (req, res) {
         const file = req.files.file
         const type = '.' + file.name.split('.').pop()
         const productrName = Uuid.v4() + type
-        file.mv(req.staticPath + '/' + productrName)
+        // file.mv(req.staticPath + '/' + productrName)
         const product = new Product({imgPath: productrName})
         product.name = name
         product.composition = JSON.parse(composition)
@@ -40,8 +40,8 @@ router.post('/edit', authMiddleware, async function (req, res) {
             const file = req.files.file
             const type = '.' + file.name.split('.').pop()
             const productrName = Uuid.v4() + type
-            fs.unlinkSync(req.staticPath + '/' + currentProduct.imgPath)
-            file.mv(req.staticPath + '/' + productrName)
+            // fs.unlinkSync(req.staticPath + '/' + currentProduct.imgPath)
+            // file.mv(req.staticPath + '/' + productrName)
             currentProduct.imgPath = productrName
         }
             currentProduct.name = name
@@ -76,7 +76,7 @@ router.delete('/delete', authMiddleware, async function (req, res) {
         if (!product) {
             return res.status(400).json({message: "Product not found"})
         }
-        fs.unlinkSync(req.staticPath + '/' + product.imgPath)
+        // fs.unlinkSync(req.staticPath + '/' + product.imgPath)
         await product.remove()
 
         return res.json({message: "Product was deleted"})
